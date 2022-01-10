@@ -1,0 +1,16 @@
+allprojects {
+  repositories {
+    mavenLocal()
+    maven { url 'https://jitpack.io' }
+    mavenCentral()
+    jcenter()
+  }
+
+  apply plugin: 'java'
+  apply plugin: 'idea'
+
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+}
+
+group = 'net.sourceforge'

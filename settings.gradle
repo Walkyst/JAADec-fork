@@ -1,0 +1,3 @@
+rootProject.name = 'jaad'
+include 'main', 'mp4', 'aac'
+

@@ -1,0 +1,31 @@
+plugins {
+  id 'java'
+  id 'maven-publish'
+}
+
+ext.moduleName = 'jaadec'
+version = '0.1.0'
+
+dependencies {
+  implementation (project(':aac'))
+  implementation (project(':mp4'))
+}
+
+task sourceJar(type: Jar) {
+  from sourceSets.main.allJava
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      groupId rootProject.group
+      artifactId moduleName
+
+      from components.java
+
+      artifact sourceJar {
+        classifier 'sources'
+      }
+    }
+  }
+}
