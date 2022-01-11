@@ -489,8 +489,8 @@ public class PSImpl implements PS {
 
 				if(bk<nr_ipdopd_par) {
 
-					var ipd_prev =  ext.data.ipd.prev[bk][phase_hist];
-					var opd_prev =  ext.data.opd.prev[bk][phase_hist];
+					float[] ipd_prev =  ext.data.ipd.prev[bk][phase_hist];
+					float[] opd_prev =  ext.data.opd.prev[bk][phase_hist];
 
 					/* previous value */
 					tempLeft[0] = (ipd_prev[0]*0.25f);

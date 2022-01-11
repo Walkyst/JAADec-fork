@@ -62,7 +62,7 @@ public class TNS implements TNSTables {
 
 	public void process(ICStream ics, float[] spec, SampleRate sf, boolean decode) {
 
-		LOGGER.warning("TNS unavailable");
+		//LOGGER.warning("TNS unavailable");
 		//throw new AACException("TNS unupported");
 		//TODO...
 	}

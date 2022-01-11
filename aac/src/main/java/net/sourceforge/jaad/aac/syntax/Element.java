@@ -9,7 +9,7 @@ public interface Element {
 
 	enum Type {
 		SCE, CPE, CCE, LFE, DSE, PCE, FIL, END;
-		public static final List<Type> VALUES = List.of(values());
+		public static final List<Type> VALUES = Arrays.asList(values());
 		public static Type get(int i) {return VALUES.get(i);}
 	}
 
@@ -60,7 +60,7 @@ public interface Element {
 
 	static <T extends InstanceTag> List<T>
 	createTagList(int count, IntFunction<T> newTag) {
-		List<T> tags = new AbstractList<>() {
+		return new AbstractList<T>() {
 
 			@Override
 			public int size() {
@@ -72,7 +72,6 @@ public interface Element {
 				return newTag.apply(index);
 			}
 		};
-		return List.copyOf(tags);
 	}
 
 	static Map<Type, IntFunction<InstanceTag>> tagFactory() {
