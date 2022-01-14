@@ -6,6 +6,7 @@ import net.sourceforge.jaad.aac.syntax.SyntacticElements;
 import net.sourceforge.jaad.aac.transport.ADIFHeader;
 
 import javax.sound.sampled.AudioFormat;
+import java.nio.ShortBuffer;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +32,10 @@ public class Decoder {
 	 */
 	public static boolean canDecode(Profile profile) {
 		return profile.isDecodingSupported();
+	}
+
+	public static DecoderConfig createConfig(byte[] data) {
+		return new DecoderConfig().decode(BitStream.open(data));
 	}
 
 	public static Decoder create(byte[] data) {
@@ -69,9 +74,9 @@ public class Decoder {
 
 		syntacticElements = new SyntacticElements(config);
 
-		LOGGER.log(Level.INFO, "profile: {0}", config.getProfile());
-		LOGGER.log(Level.INFO, "sf: {0}", config.getSampleFrequency().getFrequency());
-		LOGGER.log(Level.INFO, "channels: {0}", config.getChannelConfiguration().getDescription());
+		LOGGER.log(Level.FINE, "profile: {0}", config.getProfile());
+		LOGGER.log(Level.FINE, "sf: {0}", config.getSampleFrequency().getFrequency());
+		LOGGER.log(Level.FINE, "channels: {0}", config.getChannelConfiguration().getDescription());
 	}
 
 	public DecoderConfig getConfig() {
@@ -82,27 +87,25 @@ public class Decoder {
 	 * Decodes one frame of AAC data in frame mode and returns the raw PCM
 	 * data.
 	 * @param frame the AAC frame
-	 * @param buffer a buffer to hold the decoded PCM data
 	 * @throws AACException if decoding fails
 	 */
 
-	public void decodeFrame(byte[] frame, Receiver buffer) {
-
+	public ShortBuffer decodeFrame(byte[] frame) {
 		BitStream in = BitStream.open(frame);
 
 		try {
 			LOGGER.log(Level.FINE, ()->String.format("frame %d @%d", frames, 8*frame.length));
-			decode(in, buffer);
-			LOGGER.log(Level.FINEST, ()->String.format("left %d", in.getBitsLeft()));
-		}
-		catch(EOSException e) {
+			return decode(in);
+		} catch(EOSException e) {
 			LOGGER.log(Level.WARNING,"unexpected end of frame",e);
 		} finally {
 			++frames;
 		}
+
+		return null;
 	}
 
-	private void decode(BitStream in, Receiver buffer) {
+	private ShortBuffer decode(BitStream in) {
 		if(ADIFHeader.isPresent(in)) {
 			adifHeader = ADIFHeader.readHeader(in);
 			PCE pce = adifHeader.getFirstPCE();
@@ -119,7 +122,7 @@ public class Decoder {
 		//2: spectral processing
 		List<float[]> channels = syntacticElements.process();
 		//3: send to output buffer
-		buffer.accept(channels, config.getSampleLength(), config.getOutputFrequency().getFrequency());
+		return syntacticElements.sendToOutput(channels, config.getSampleLength());
 	}
 
 	public AudioFormat getAudioFormat() {

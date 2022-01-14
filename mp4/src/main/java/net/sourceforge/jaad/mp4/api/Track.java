@@ -310,6 +310,10 @@ public abstract class Track {
 		return currentFrame<frames.size();
 	}
 
+	public int getCurrentFrame() {
+		return currentFrame;
+	}
+
 	/**
 	 * Reads the next frame from this track. If it contains no more frames to
 	 * read, null is returned.

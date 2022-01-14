@@ -357,9 +357,11 @@ public class BoxFactory implements BoxTypes {
 		if(left>0
 				&&!(box instanceof MediaDataBox)
 				&&!(box instanceof UnknownBox)
-				&&!(box instanceof FreeSpaceBox)) LOGGER.log(Level.INFO, "bytes left after reading box {0}: left: {1}, offset: {2}", new Object[]{typeToString(type), left, in.getOffset()});
-		else if(left<0)
-			LOGGER.log(Level.SEVERE, "box {0} overread: {1} bytes, offset: {2}", new Object[]{typeToString(type), -left, in.getOffset()});
+				&&!(box instanceof FreeSpaceBox)) {
+			LOGGER.log(Level.FINE, "bytes left after reading box {0}: left: {1}, offset: {2}", new Object[]{typeToString(type), left, in.getOffset()});
+		} else if(left<0) {
+			LOGGER.log(Level.FINE, "box {0} overread: {1} bytes, offset: {2}", new Object[]{typeToString(type), -left, in.getOffset()});
+		}
 
 		//if mdat found and no random access, don't skip
 		if(box.getType()!=MEDIA_DATA_BOX||in.hasRandomAccess())
@@ -411,7 +413,7 @@ public class BoxFactory implements BoxTypes {
 					box = con.newInstance(s[0]);
 				}
 				catch(Exception e) {
-					LOGGER.log(Level.SEVERE, "BoxFactory: could not call constructor for "+typeToString(type), e);
+					LOGGER.log(Level.FINE, "BoxFactory: could not call constructor for "+typeToString(type), e);
 					box = new UnknownBox();
 				}
 			}
@@ -420,13 +422,13 @@ public class BoxFactory implements BoxTypes {
 					box = cl.newInstance();
 				}
 				catch(Exception e) {
-					LOGGER.log(Level.SEVERE, "BoxFactory: could not instantiate box "+typeToString(type), e);
+					LOGGER.log(Level.FINE, "BoxFactory: could not instantiate box "+typeToString(type), e);
 				}
 			}
 		}
 
 		if(box==null) {
-			LOGGER.log(Level.INFO, "BoxFactory: unknown box type: {0}; position: {1}", new Object[]{typeToString(type), offset});
+			LOGGER.log(Level.FINE, "BoxFactory: unknown box type: {0}; position: {1}", new Object[]{typeToString(type), offset});
 			box = new UnknownBox();
 		}
 		return box;

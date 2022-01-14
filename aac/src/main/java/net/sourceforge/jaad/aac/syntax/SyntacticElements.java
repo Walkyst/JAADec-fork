@@ -4,6 +4,9 @@ import net.sourceforge.jaad.aac.AACException;
 import net.sourceforge.jaad.aac.DecoderConfig;
 import net.sourceforge.jaad.aac.filterbank.FilterBank;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -240,5 +243,24 @@ public class SyntacticElements {
 			channels.add(channels.get(0));
 
 		return channels;
+	}
+
+	public ShortBuffer sendToOutput(List<float[]> samples, int sampleLength) {
+		int bytes = samples.size() * Short.BYTES * sampleLength;
+		ByteBuffer bb = ByteBuffer.allocate(bytes).order(ByteOrder.BIG_ENDIAN);
+
+		for (int is=0; is<sampleLength; ++is) {
+			for (float[] sample : samples) {
+				int k = sample.length * is / sampleLength;
+				float s = sample[k];
+				int pulse = Math.round(s);
+				pulse = Math.min(pulse, Short.MAX_VALUE);
+				pulse = Math.max(pulse, Short.MIN_VALUE);
+				bb.putShort((short)pulse);
+			}
+		}
+
+		bb.flip();
+		return bb.asShortBuffer();
 	}
 }
