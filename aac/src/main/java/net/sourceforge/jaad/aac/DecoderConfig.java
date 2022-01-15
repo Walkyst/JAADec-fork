@@ -6,6 +6,12 @@ import net.sourceforge.jaad.aac.sbr.PS;
 import net.sourceforge.jaad.aac.sbr.SBR;
 import net.sourceforge.jaad.aac.syntax.BitStream;
 import net.sourceforge.jaad.aac.syntax.PCE;
+import net.sourceforge.jaad.aac.tools.BitStreamWriter;
+import net.sourceforge.jaad.aac.tools.ByteBufferOutputStream;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import static net.sourceforge.jaad.aac.SampleFrequency.SF_NONE;
 
@@ -163,6 +169,51 @@ public class DecoderConfig {
 
 	public static DecoderConfig create(AudioDecoderInfo info) {
 		return new DecoderConfig().setAudioDecoderInfo(info);
+	}
+
+	public static byte[] encodeConfiguration(int objectType, int frequency, int channels) {
+		try {
+			ByteBuffer buffer = ByteBuffer.allocate(8);
+			buffer.order(ByteOrder.nativeOrder());
+			BitStreamWriter bitWriter = new BitStreamWriter(new ByteBufferOutputStream(buffer));
+
+			bitWriter.write(objectType, 5);
+
+			int frequencyIndex = getFrequencyIndex(frequency);
+			bitWriter.write(frequencyIndex, 4);
+
+			if (frequencyIndex == 15) {
+				bitWriter.write(frequency, 24);
+			}
+
+			bitWriter.write(channels, 4);
+			bitWriter.flush();
+
+			buffer.clear();
+
+			return buffer.array();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static int getFrequencyIndex(int frequency) {
+		switch (frequency) {
+			case 96000: return 0;
+			case 88200: return 1;
+			case 64000: return 2;
+			case 48000: return 3;
+			case 44100: return 4;
+			case 32000: return 5;
+			case 24000: return 6;
+			case 22050: return 7;
+			case 16000: return 8;
+			case 12000: return 9;
+			case 11025: return 10;
+			case 8000: return 11;
+			case 7350: return 12;
+			default: return 15;
+		}
 	}
 
 	/**
