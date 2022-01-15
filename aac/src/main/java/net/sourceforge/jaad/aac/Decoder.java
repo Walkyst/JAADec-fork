@@ -43,7 +43,8 @@ public class Decoder {
 	}
 
 	public static Decoder create(int objectType, int frequency, int channels) {
-		return create(BitStream.open(DecoderConfig.encodeConfiguration(objectType, frequency, channels)));
+		byte[] config = DecoderConfig.encodeConfiguration(objectType, frequency, channels);
+		return create(BitStream.open(config));
 	}
 
 	public static Decoder create(BitStream in) {
